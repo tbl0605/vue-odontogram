@@ -1,6 +1,7 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import Odontogram from "../src/components/Odontogram.vue";
+import { getViewBox } from "../src/getViewBox";
 import {
 	convertFDIToNotation,
 	getToothNotations,
@@ -16,6 +17,32 @@ describe("Odontogram", () => {
 		).toBeTruthy();
 
 		expect(wrapper.findAll('[role="option"]')).toHaveLength(32);
+	});
+
+	it("renders the tooth numbers in the selected notation", () => {
+		const wrapper = mount(Odontogram, { props: { notation: "Universal" } });
+
+		expect(wrapper.findAll("text")).toHaveLength(32);
+		expect(wrapper.findAll("text")[0].text()).toBe("8");
+
+		const hidden = mount(Odontogram, { props: { showNumbers: false } });
+		expect(hidden.findAll("text")).toHaveLength(0);
+	});
+
+	it("shrinks the view box for a partial dentition", () => {
+		const wrapper = mount(Odontogram, { props: { maxTeeth: 5 } });
+
+		expect(wrapper.get("svg").attributes("viewBox")).toBe("0 0 409 314");
+		expect(getViewBox("circle", "full")).toBe("0 0 409 694");
+		expect(wrapper.html()).toContain("translate(0, -380) scale(1, -1)");
+	});
+
+	it("accepts a custom arch height and chart width", () => {
+		const wrapper = mount(Odontogram, {
+			props: { archHeight: 200, chartWidth: 309 },
+		});
+
+		expect(wrapper.get("svg").attributes("viewBox")).toBe("50 0 309 400");
 	});
 
 	it("renders only upper or lower halves when requested", () => {

@@ -178,3 +178,34 @@ export const NewTeethPaths = [
 			"M7.13742 27.9101C7.89327 26.717 10.2562 25.7846 12.8627 25.483M38.0458 27.6444C37.0983 25.9368 34.2284 24.8447 31.1328 24.7739M37.58 21.3626C36.685 22.4687 34.1426 24.6994 31.1328 24.7739M31.1328 24.7739C27.1226 24.6823 22.7336 26.3048 21.6544 30.5239C21.9221 26.1555 17.0744 24.9957 12.8627 25.483M6.646 21.8371C7.23084 23.1942 9.29296 25.8232 12.8627 25.483",
 	},
 ];
+
+/**
+ * Position of the tooth numbers, in the coordinates of the first quadrant.
+ * - circle: inside the arch, at the same distance from the outline of each tooth.
+ * - square: between the upper and the lower row.
+ */
+export const labelPositions: Record<
+	"circle" | "square",
+	Record<string, { x: number; y: number }>
+> = {
+	circle: {
+		"1": { x: 181, y: 73 },
+		"2": { x: 147, y: 77 },
+		"3": { x: 132, y: 91 },
+		"4": { x: 115, y: 112 },
+		"5": { x: 104, y: 139 },
+		"6": { x: 90, y: 181 },
+		"7": { x: 82, y: 238 },
+		"8": { x: 79, y: 292 },
+	},
+	square: {
+		"1": { x: 402.5, y: 66 },
+		"2": { x: 347, y: 66 },
+		"3": { x: 293.4, y: 66 },
+		"4": { x: 244.4, y: 66 },
+		"5": { x: 197.2, y: 66 },
+		"6": { x: 144.3, y: 66 },
+		"7": { x: 83.8, y: 66 },
+		"8": { x: 23.8, y: 66 },
+	},
+};

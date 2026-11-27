@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, type CSSProperties } from "vue";
-import { NewTeethPaths, teethPaths } from "../data";
-import { getViewBox } from "../getViewBox";
+import { labelPositions, NewTeethPaths, teethPaths } from "../data";
+import { getArchHeight, getViewBox } from "../getViewBox";
 import type {
 	OdontogramEmits,
 	OdontogramProps,
@@ -36,6 +36,7 @@ const props = withDefaults(defineProps<OdontogramProps>(), {
 	maxTeeth: 8,
 	readOnly: false,
 	showLabels: false,
+	showNumbers: true,
 	layout: "circle",
 });
 
@@ -48,6 +49,24 @@ const teethpath = computed(() =>
 const quadrants = computed(() =>
 	props.layout === "circle" ? oldquadrants : newQuadrants,
 );
+
+// The lower quadrants are mirrored around the bottom of the view box.
+function quadrantTransform({ name, transform }: { name: string; transform: string }) {
+	if (name !== "third" && name !== "fourth") {
+		return transform;
+	}
+	const archHeight = props.archHeight ?? getArchHeight(props.layout, props.maxTeeth);
+	const shift = (archHeight - getArchHeight(props.layout)) * 2;
+	return `translate(0, ${shift}) ${transform}`;
+}
+
+// Position of a tooth number, not mirrored with its quadrant.
+function numberTransform(toothName: string, quadrantName: string) {
+	const { x, y } = labelPositions[props.layout][toothName];
+	const sx = quadrantName === "second" || quadrantName === "fourth" ? -1 : 1;
+	const sy = quadrantName === "third" || quadrantName === "fourth" ? -1 : 1;
+	return `translate(${x} ${y}) scale(${sx} ${sy})`;
+}
 
 const toothTypeByName = computed(
 	() => new Map(teethpath.value.map((t) => [t.name, t.type])),
@@ -275,7 +294,7 @@ const hiddenInputValue = computed(() =>
 	JSON.stringify(Array.from(selectedSet.value)),
 );
 
-const viewBox = computed(() => getViewBox(props.layout, props.showHalf));
+const viewBox = computed(() => getViewBox(props.layout, props.showHalf, props));
 </script>
 
 <template>
@@ -308,7 +327,7 @@ const viewBox = computed(() => getViewBox(props.layout, props.showHalf));
 			<g
 				v-for="(quadrant, index) in visibleQuadrants"
 				:key="quadrant.name"
-				:transform="quadrant.transform"
+				:transform="quadrantTransform(quadrant)"
 			>
 				<Tooth
 					v-for="tooth in filteredTeeth"
@@ -329,6 +348,21 @@ const viewBox = computed(() => getViewBox(props.layout, props.showHalf));
 						{{ convertFDIToNotation(toothId(teethPrefix(index), tooth.name), notation) }}
 					</title>
 				</Tooth>
+				<template v-if="showNumbers">
+					<text
+						v-for="tooth in filteredTeeth"
+						:key="tooth.name"
+						:transform="numberTransform(tooth.name, quadrant.name)"
+						:font-size="layout === 'circle' ? 16 : 14"
+						text-anchor="middle"
+						dominant-baseline="central"
+						fill="var(--dark-blue)"
+						pointer-events="none"
+						aria-hidden="true"
+					>
+						{{ convertFDIToNotation(toothId(teethPrefix(index), tooth.name), notation) }}
+					</text>
+				</template>
 			</g>
 		</svg>
 

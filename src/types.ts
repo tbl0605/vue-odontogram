@@ -72,6 +72,9 @@ export interface OdontogramProps {
 	showTooltip?: boolean;
 	showHalf?: "upper" | "lower" | "full";
 	maxTeeth?: number;
+	archHeight?: number;
+	chartWidth?: number;
+	showNumbers?: boolean;
 	teethConditions?: ToothConditionGroup[];
 	readOnly?: boolean;
 	showLabels?: boolean;
