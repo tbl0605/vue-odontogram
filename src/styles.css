@@ -99,6 +99,10 @@
 	opacity: 1;
 }
 
+.Odontogram .odontogram-number {
+	fill: var(--dark-blue);
+}
+
 .odontogram-tooltip {
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 	backdrop-filter: blur(4px);

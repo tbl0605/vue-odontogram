@@ -28,6 +28,8 @@ describe("Odontogram", () => {
 		expect(wrapper.findAll("text")).toHaveLength(32);
 		expect(wrapper.findAll("text")[0].text()).toBe("8");
 
+		expect(wrapper.get("text").classes()).toContain("odontogram-number");
+
 		// Hidden by default.
 		const hidden = mount(Odontogram);
 		expect(hidden.findAll("text")).toHaveLength(0);

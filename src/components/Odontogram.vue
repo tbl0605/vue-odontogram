@@ -387,11 +387,11 @@ const viewBox = computed(() =>
 					<text
 						v-for="tooth in filteredTeeth"
 						:key="tooth.name"
+						class="odontogram-number"
 						:transform="numberTransform(tooth.name, quadrant.name)"
 						:font-size="(layout === 'circle' ? 16 : 14) * (notation === 'Palmer' && palmerStyle === 'text' ? 0.75 : 1)"
 						text-anchor="middle"
 						dominant-baseline="central"
-						fill="var(--dark-blue)"
 						pointer-events="none"
 						aria-hidden="true"
 					>
