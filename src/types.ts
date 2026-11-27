@@ -2,6 +2,9 @@ import type { CSSProperties } from "vue";
 
 export type Notation = "FDI" | "Universal" | "Palmer";
 
+/** Palmer notation: text ("6UR") or grid corner symbol ("6⌋"). */
+export type PalmerStyle = "text" | "symbol";
+
 export type Theme = "light" | "dark";
 
 export type Placement =
@@ -67,6 +70,7 @@ export interface OdontogramProps {
 	theme?: Theme;
 	colors?: OdontogramColors;
 	notation?: Notation;
+	palmerStyle?: PalmerStyle;
 	tooltipPlacement?: Placement;
 	tooltipMargin?: number;
 	showTooltip?: boolean;

@@ -60,6 +60,7 @@ app.use(VueOdontogram);
 | `theme` | `'light' \| 'dark'` | `'light'` | Built-in color theme |
 | `colors` | `OdontogramColors` | `{}` | Override CSS variables |
 | `notation` | `'FDI' \| 'Universal' \| 'Palmer'` | `'FDI'` | Tooth label notation in SVG `<title>` |
+| `palmerStyle` | `'text' \| 'symbol'` | `'text'` | Palmer display: `6UR` (text) or `6⌋` (grid corner symbol) |
 | `tooltipPlacement` | `Placement` | `'top'` | Tooltip anchor placement |
 | `tooltipMargin` | `number` | `10` | Tooltip offset from tooth |
 | `showTooltip` | `boolean` | `true` | Show hover/focus tooltip |

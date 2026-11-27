@@ -29,6 +29,41 @@ describe("Odontogram", () => {
 		expect(hidden.findAll("text")).toHaveLength(0);
 	});
 
+	it("displays Palmer as text or as grid corner symbols", () => {
+		const texts = (palmerStyle?: "text" | "symbol") =>
+			mount(Odontogram, { props: { notation: "Palmer", palmerStyle } })
+				.findAll("text")
+				.map((text) => text.text());
+
+		expect(texts()[0]).toBe("1UR");
+		expect(texts("symbol").filter((t) => t.includes("⌋"))).toHaveLength(8);
+		expect(texts("symbol")[0]).toBe("1⌋");
+		expect(texts("symbol")[8]).toBe("⌊1");
+		expect(convertFDIToNotation("teeth-31", "Palmer", "symbol")).toBe("⌈1");
+		expect(convertFDIToNotation("teeth-41", "Palmer", "symbol")).toBe("1⌉");
+	});
+
+	it("numbers the teeth of the lower half correctly", () => {
+		const wrapper = mount(Odontogram, { props: { showHalf: "lower" } });
+		const numbers = wrapper.findAll("text").map((text) => text.text());
+
+		expect(numbers[0]).toBe("41");
+		expect(numbers[8]).toBe("31");
+		expect(wrapper.find('[class~="teeth-31"]').exists()).toBe(true);
+	});
+
+	it("draws the FDI quadrants 4 and 3 on the left and right of the lower row", () => {
+		const wrapper = mount(Odontogram);
+		const transform = (id: string) =>
+			wrapper.get(`[class~="${id}"]`).element.parentElement?.getAttribute(
+				"transform",
+			);
+
+		// Quadrant 4 is on the left (not mirrored horizontally), like quadrant 1.
+		expect(transform("teeth-41")).toContain("scale(1, -1)");
+		expect(transform("teeth-31")).toContain("scale(-1, -1)");
+	});
+
 	it("shrinks the view box for a partial dentition", () => {
 		const wrapper = mount(Odontogram, { props: { maxTeeth: 5 } });
 

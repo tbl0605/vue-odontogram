@@ -29,6 +29,7 @@ const props = withDefaults(defineProps<OdontogramProps>(), {
 	theme: "light",
 	colors: () => ({}),
 	notation: "FDI",
+	palmerStyle: "text",
 	tooltipPlacement: "top",
 	tooltipMargin: 10,
 	showTooltip: true,
@@ -256,7 +257,11 @@ const conditionMap = computed(() => {
 });
 
 function teethPrefix(index: number) {
-	return `teeth-${index + 1}`;
+	// With the lower half only, the first visible quadrant is the third one.
+	const offset = props.showHalf === "lower" ? 2 : 0;
+	// FDI: the patient's lower right is quadrant 4, drawn on the left of the
+	// lower row, and the lower left is quadrant 3.
+	return `teeth-${[1, 2, 4, 3][index + offset]}`;
 }
 
 function toothId(prefix: string, toothName: string) {
@@ -345,7 +350,7 @@ const viewBox = computed(() => getViewBox(props.layout, props.showHalf, props));
 					@leave="handleLeave"
 				>
 					<title>
-						{{ convertFDIToNotation(toothId(teethPrefix(index), tooth.name), notation) }}
+						{{ convertFDIToNotation(toothId(teethPrefix(index), tooth.name), notation, palmerStyle) }}
 					</title>
 				</Tooth>
 				<template v-if="showNumbers">
@@ -353,14 +358,14 @@ const viewBox = computed(() => getViewBox(props.layout, props.showHalf, props));
 						v-for="tooth in filteredTeeth"
 						:key="tooth.name"
 						:transform="numberTransform(tooth.name, quadrant.name)"
-						:font-size="layout === 'circle' ? 16 : 14"
+						:font-size="(layout === 'circle' ? 16 : 14) * (notation === 'Palmer' && palmerStyle === 'text' ? 0.75 : 1)"
 						text-anchor="middle"
 						dominant-baseline="central"
 						fill="var(--dark-blue)"
 						pointer-events="none"
 						aria-hidden="true"
 					>
-						{{ convertFDIToNotation(toothId(teethPrefix(index), tooth.name), notation) }}
+						{{ convertFDIToNotation(toothId(teethPrefix(index), tooth.name), notation, palmerStyle) }}
 					</text>
 				</template>
 			</g>

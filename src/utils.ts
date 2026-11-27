@@ -1,4 +1,9 @@
-import type { Notation, OdontogramColors, Placement } from "./types";
+import type {
+	Notation,
+	OdontogramColors,
+	PalmerStyle,
+	Placement,
+} from "./types";
 
 export function mapToCssVars(colors: OdontogramColors) {
 	const cssVars: Record<string, string> = {};
@@ -102,7 +107,11 @@ export const oldquadrants: Array<{
 	},
 ];
 
-export function convertFDIToNotation(fdi: string, notation: Notation) {
+export function convertFDIToNotation(
+	fdi: string,
+	notation: Notation,
+	palmerStyle: PalmerStyle = "text",
+) {
 	const num = fdi.replace("teeth-", "");
 
 	const fdiToUniversal: Record<string, number> = {
@@ -151,6 +160,22 @@ export function convertFDIToNotation(fdi: string, notation: Notation) {
 
 		const quadrant = num[0];
 		const tooth = num[1];
+		if (palmerStyle === "symbol") {
+			// Palmer grid corner: ⌋ upper right, ⌊ upper left, ⌉ lower right,
+			// ⌈ lower left. It follows the number on the right side of the mouth
+			// and precedes it on the left side.
+			const corners: Record<string, string> = {
+				"1": "⌋",
+				"2": "⌊",
+				"3": "⌈",
+				"4": "⌉",
+			};
+			const corner = corners[quadrant] ?? "";
+			return quadrant === "1" || quadrant === "4"
+				? `${tooth}${corner}`
+				: `${corner}${tooth}`;
+		}
+
 		const symbols: Record<string, string> = {
 			"1": "UR",
 			"2": "UL",

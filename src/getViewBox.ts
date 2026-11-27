@@ -14,7 +14,7 @@ export interface ViewBoxOptions {
 const CIRCLE_ARCH_HEIGHTS = [87, 91, 108, 131, 157, 219, 275, 347];
 
 export function getArchHeight(layout: Layout, maxTeeth = 8): number {
-	return layout === "square" ? 75 : (CIRCLE_ARCH_HEIGHTS[maxTeeth - 1] ?? 347);
+	return layout === "square" ? 75 : (CIRCLE_ARCH_HEIGHTS[Math.floor(maxTeeth) - 1] ?? 347);
 }
 
 export function getViewBox(

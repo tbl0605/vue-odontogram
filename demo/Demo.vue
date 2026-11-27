@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import { getArchHeight, getViewBox, Odontogram } from "../src";
 import type {
 	Notation,
+	PalmerStyle,
 	Theme,
 	ToothConditionGroup,
 	ToothDetail,
@@ -39,6 +40,12 @@ const halves = [
 ] as const;
 
 const notations: Notation[] = ["FDI", "Universal", "Palmer"];
+
+const palmerStyle = ref<PalmerStyle>("text");
+const palmerStyles = [
+	{ id: "text", label: "Texte (6UR)" },
+	{ id: "symbol", label: "Symboles (6⌋)" },
+] as const;
 
 const conditions: ToothConditionGroup[] = [
 	{
@@ -105,6 +112,7 @@ function reset() {
 				<Odontogram
 					v-model:selected="selected"
 					:notation="notation"
+					:palmer-style="palmerStyle"
 					:layout="layout"
 					:theme="theme"
 					:max-teeth="maxTeeth"
@@ -194,6 +202,19 @@ function reset() {
 						@click="notation = item"
 					>
 						{{ item }}
+					</button>
+				</fieldset>
+
+				<fieldset v-if="notation === 'Palmer'">
+					<legend>Affichage Palmer</legend>
+					<button
+						v-for="item in palmerStyles"
+						:key="item.id"
+						type="button"
+						:class="{ active: palmerStyle === item.id }"
+						@click="palmerStyle = item.id"
+					>
+						{{ item.label }}
 					</button>
 				</fieldset>
 
