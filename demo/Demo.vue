@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { getArchHeight, getViewBox, Odontogram } from "../src";
+import {
+	LABEL_PADDING,
+	defaultLabels,
+	frLabels,
+	getArchHeight,
+	getViewBox,
+	Odontogram,
+} from "../src";
 import type {
 	Notation,
+	NumberPosition,
 	PalmerStyle,
 	Theme,
 	ToothConditionGroup,
@@ -17,50 +25,160 @@ const layout = ref<"circle" | "square">("circle");
 const theme = ref<Theme>("light");
 const maxTeeth = ref(8);
 const showHalf = ref<"full" | "upper" | "lower">("full");
+const french = ref(true);
 const showNumbers = ref(true);
 const showLabels = ref(false);
 const singleSelect = ref(false);
 const readOnly = ref(false);
 const showTooltip = ref(true);
 
-const layouts = [
-	{ id: "circle", label: "Arcade" },
-	{ id: "square", label: "Rangées" },
-] as const;
+// Texts of the demo itself (the component texts come from `labels`).
+const messages = {
+	fr: {
+		intro:
+			"Odontogramme interactif avec numéros de dents. Cliquez sur une dent pour la sélectionner, survolez-la pour voir le détail.",
+		layout: "Disposition",
+		arch: "Arcade",
+		rows: "Rangées",
+		dentition: "Dentition",
+		adult: "Adulte (8 par quadrant)",
+		five: "5 par quadrant",
+		half: "Arcade",
+		both: "Les deux",
+		upper: "Haut",
+		lower: "Bas",
+		frame: "Cadre (unités SVG)",
+		archHeight: "Hauteur d'une arcade",
+		width: "Largeur",
+		notation: "Notation",
+		palmerDisplay: "Affichage Palmer",
+		palmerText: "Texte (6SD)",
+		palmerSymbol: "Symboles (6⌋)",
+		numberPosition: "Position des numéros",
+		inside: "Intérieur",
+		outside: "Extérieur",
+		language: "Langue des textes",
+		theme: "Thème",
+		light: "Clair",
+		dark: "Sombre",
+		options: "Options",
+		numbers: "Numéros",
+		tooltip: "Infobulle",
+		singleSelect: "Sélection unique",
+		readOnly: "Lecture seule",
+		withConditions: "Exemple de pathologies",
+		showLegend: "Légende des pathologies",
+		reset: "Réinitialiser",
+		selection: "Sélection",
+		none: "Aucune dent sélectionnée.",
+		fdiNumbers: "Numéros FDI",
+		decay: "Carie",
+		filling: "Obturation",
+	},
+	en: {
+		intro:
+			"Interactive odontogram with tooth numbers. Click a tooth to select it, hover it to see the details.",
+		layout: "Layout",
+		arch: "Arch",
+		rows: "Rows",
+		dentition: "Dentition",
+		adult: "Adult (8 per quadrant)",
+		five: "5 per quadrant",
+		half: "Arch",
+		both: "Both",
+		upper: "Upper",
+		lower: "Lower",
+		frame: "Frame (SVG units)",
+		archHeight: "Height of one arch",
+		width: "Width",
+		notation: "Notation",
+		palmerDisplay: "Palmer display",
+		palmerText: "Text (6UR)",
+		palmerSymbol: "Symbols (6⌋)",
+		numberPosition: "Number position",
+		inside: "Inside",
+		outside: "Outside",
+		language: "Text language",
+		theme: "Theme",
+		light: "Light",
+		dark: "Dark",
+		options: "Options",
+		numbers: "Numbers",
+		tooltip: "Tooltip",
+		singleSelect: "Single selection",
+		readOnly: "Read only",
+		withConditions: "Example conditions",
+		showLegend: "Conditions legend",
+		reset: "Reset",
+		selection: "Selection",
+		none: "No tooth selected.",
+		fdiNumbers: "FDI numbers",
+		decay: "Decay",
+		filling: "Filling",
+	},
+};
+const t = computed(() => messages[french.value ? "fr" : "en"]);
+const labels = computed(() => (french.value ? frLabels : defaultLabels));
 
-const dentitions = [
-	{ value: 8, label: "Adulte (8 par quadrant)" },
-	{ value: 5, label: "5 par quadrant" },
-] as const;
+const layouts = computed(
+	() =>
+		[
+			{ id: "circle", label: t.value.arch },
+			{ id: "square", label: t.value.rows },
+		] as const,
+);
 
-const halves = [
-	{ id: "full", label: "Les deux" },
-	{ id: "upper", label: "Haut" },
-	{ id: "lower", label: "Bas" },
-] as const;
+const dentitions = computed(
+	() =>
+		[
+			{ value: 8, label: t.value.adult },
+			{ value: 5, label: t.value.five },
+		] as const,
+);
+
+const halves = computed(
+	() =>
+		[
+			{ id: "full", label: t.value.both },
+			{ id: "upper", label: t.value.upper },
+			{ id: "lower", label: t.value.lower },
+		] as const,
+);
 
 const notations: Notation[] = ["FDI", "Universal", "Palmer"];
 
-const palmerStyle = ref<PalmerStyle>("text");
-const palmerStyles = [
-	{ id: "text", label: "Texte (6UR)" },
-	{ id: "symbol", label: "Symboles (6⌋)" },
-] as const;
+const numberPosition = ref<NumberPosition>("inside");
+const numberPositions = computed(
+	() =>
+		[
+			{ id: "inside", label: t.value.inside },
+			{ id: "outside", label: t.value.outside },
+		] as const,
+);
 
-const conditions: ToothConditionGroup[] = [
+const palmerStyle = ref<PalmerStyle>("text");
+const palmerStyles = computed(
+	() =>
+		[
+			{ id: "text", label: t.value.palmerText },
+			{ id: "symbol", label: t.value.palmerSymbol },
+		] as const,
+);
+
+const conditions = computed<ToothConditionGroup[]>(() => [
 	{
-		label: "Carie",
+		label: t.value.decay,
 		teeth: ["teeth-16", "teeth-26"],
 		outlineColor: "#c0392b",
 		fillColor: "#f5b7b1",
 	},
 	{
-		label: "Obturation",
+		label: t.value.filling,
 		teeth: ["teeth-36", "teeth-46"],
 		outlineColor: "#1e8449",
 		fillColor: "#abebc6",
 	},
-];
+]);
 
 // Vide = valeur automatique de la bibliothèque.
 const archHeightInput = ref("");
@@ -81,12 +199,16 @@ const currentViewBox = computed(() =>
 		maxTeeth: maxTeeth.value,
 		archHeight: archHeight.value,
 		chartWidth: chartWidth.value,
+		padding:
+			showNumbers.value && numberPosition.value === "outside"
+				? LABEL_PADDING
+				: 0,
 	}),
 );
 
 const withConditions = ref(false);
 const teethConditions = computed(() =>
-	withConditions.value ? conditions : undefined,
+	withConditions.value ? conditions.value : undefined,
 );
 
 const codesFdi = computed(() =>
@@ -102,10 +224,7 @@ function reset() {
 <template>
 	<main class="demo" :class="{ dark: theme === 'dark' }">
 		<h1>vue-odontogram</h1>
-		<p class="intro">
-			Odontogramme interactif avec numéros de dents. Cliquez sur une dent pour
-			la sélectionner, survolez-la pour voir le détail.
-		</p>
+		<p class="intro">{{ t.intro }}</p>
 
 		<div class="layout">
 			<section class="chart" :class="{ wide: layout === 'square' }">
@@ -120,7 +239,9 @@ function reset() {
 					:chart-width="chartWidth"
 					:show-half="showHalf"
 					:show-numbers="showNumbers"
+					:number-position="numberPosition"
 					:show-labels="showLabels"
+					:labels="labels"
 					:single-select="singleSelect"
 					:read-only="readOnly"
 					:show-tooltip="showTooltip"
@@ -131,7 +252,7 @@ function reset() {
 
 			<aside class="panel">
 				<fieldset>
-					<legend>Disposition</legend>
+					<legend>{{ t.layout }}</legend>
 					<button
 						v-for="item in layouts"
 						:key="item.id"
@@ -144,7 +265,7 @@ function reset() {
 				</fieldset>
 
 				<fieldset>
-					<legend>Dentition</legend>
+					<legend>{{ t.dentition }}</legend>
 					<button
 						v-for="item in dentitions"
 						:key="item.value"
@@ -157,7 +278,7 @@ function reset() {
 				</fieldset>
 
 				<fieldset>
-					<legend>Arcade</legend>
+					<legend>{{ t.half }}</legend>
 					<button
 						v-for="item in halves"
 						:key="item.id"
@@ -170,9 +291,9 @@ function reset() {
 				</fieldset>
 
 				<fieldset>
-					<legend>Cadre (unités SVG)</legend>
+					<legend>{{ t.frame }}</legend>
 					<label>
-						Hauteur d'une arcade
+						{{ t.archHeight }}
 						<input
 							v-model="archHeightInput"
 							type="number"
@@ -181,7 +302,7 @@ function reset() {
 						/>
 					</label>
 					<label>
-						Largeur
+						{{ t.width }}
 						<input
 							v-model="chartWidthInput"
 							type="number"
@@ -193,7 +314,7 @@ function reset() {
 				</fieldset>
 
 				<fieldset>
-					<legend>Notation</legend>
+					<legend>{{ t.notation }}</legend>
 					<button
 						v-for="item in notations"
 						:key="item"
@@ -206,7 +327,7 @@ function reset() {
 				</fieldset>
 
 				<fieldset v-if="notation === 'Palmer'">
-					<legend>Affichage Palmer</legend>
+					<legend>{{ t.palmerDisplay }}</legend>
 					<button
 						v-for="item in palmerStyles"
 						:key="item.id"
@@ -218,61 +339,101 @@ function reset() {
 					</button>
 				</fieldset>
 
+				<fieldset v-if="showNumbers">
+					<legend>{{ t.numberPosition }}</legend>
+					<button
+						v-for="item in numberPositions"
+						:key="item.id"
+						type="button"
+						:class="{ active: numberPosition === item.id }"
+						@click="numberPosition = item.id"
+					>
+						{{ item.label }}
+					</button>
+				</fieldset>
+
 				<fieldset>
-					<legend>Thème</legend>
+					<legend>{{ t.language }}</legend>
+					<button
+						type="button"
+						:class="{ active: !french }"
+						@click="french = false"
+					>
+						English
+					</button>
+					<button
+						type="button"
+						:class="{ active: french }"
+						@click="french = true"
+					>
+						Français
+					</button>
+				</fieldset>
+
+				<fieldset>
+					<legend>{{ t.theme }}</legend>
 					<button
 						type="button"
 						:class="{ active: theme === 'light' }"
 						@click="theme = 'light'"
 					>
-						Clair
+						{{ t.light }}
 					</button>
 					<button
 						type="button"
 						:class="{ active: theme === 'dark' }"
 						@click="theme = 'dark'"
 					>
-						Sombre
+						{{ t.dark }}
 					</button>
 				</fieldset>
 
 				<fieldset>
-					<legend>Options</legend>
-					<label><input v-model="showNumbers" type="checkbox" /> Numéros</label>
-					<label><input v-model="showTooltip" type="checkbox" /> Infobulle</label>
+					<legend>{{ t.options }}</legend>
 					<label>
-						<input v-model="singleSelect" type="checkbox" /> Sélection unique
-					</label>
-					<label><input v-model="readOnly" type="checkbox" /> Lecture seule</label>
-					<label>
-						<input v-model="withConditions" type="checkbox" /> Exemple de
-						pathologies
+						<input v-model="showNumbers" type="checkbox" /> {{ t.numbers }}
 					</label>
 					<label>
-						<input v-model="showLabels" type="checkbox" /> Légende des
-						pathologies
+						<input v-model="showTooltip" type="checkbox" /> {{ t.tooltip }}
+					</label>
+					<label>
+						<input v-model="singleSelect" type="checkbox" />
+						{{ t.singleSelect }}
+					</label>
+					<label>
+						<input v-model="readOnly" type="checkbox" /> {{ t.readOnly }}
+					</label>
+					<label>
+						<input v-model="withConditions" type="checkbox" />
+						{{ t.withConditions }}
+					</label>
+					<label>
+						<input v-model="showLabels" type="checkbox" /> {{ t.showLegend }}
 					</label>
 				</fieldset>
 
-				<button type="button" class="reset" @click="reset">Réinitialiser</button>
+				<button type="button" class="reset" @click="reset">
+					{{ t.reset }}
+				</button>
 			</aside>
 		</div>
 
 		<section class="result">
-			<h2>Sélection</h2>
-			<p v-if="details.length === 0" class="muted">Aucune dent sélectionnée.</p>
+			<h2>{{ t.selection }}</h2>
+			<p v-if="details.length === 0" class="muted">{{ t.none }}</p>
 			<ul v-else>
 				<li v-for="tooth in details" :key="tooth.id">
-					<strong>{{ tooth.notations.fdi }}</strong> — {{ tooth.type }}
+					<strong>{{ tooth.notations.fdi }}</strong> —
+					{{ labels.toothTypes?.[tooth.type] ?? tooth.type }}
 					<span class="muted">
-						(Universal {{ tooth.notations.universal }}, Palmer
-						{{ tooth.notations.palmer }})
+						({{ labels.universal }} {{ tooth.notations.universal }},
+						{{ labels.palmer }} {{ tooth.notations.palmer }})
 					</span>
 				</li>
 			</ul>
 			<label class="fdi">
-				Numéros FDI
-				<input readonly :value="codesFdi" placeholder="Aucune dent sélectionnée" />
+				{{ t.fdiNumbers }}
+				<input readonly :value="codesFdi" :placeholder="t.none" />
 			</label>
 		</section>
 	</main>

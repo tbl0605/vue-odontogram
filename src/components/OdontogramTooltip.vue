@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
+import { defaultLabels } from "../labels";
 import type { OdontogramTooltipProps } from "../types";
 
 const ARROW_OFFSET = 12;
 const VIEWPORT_PADDING = 8;
 
 const props = defineProps<OdontogramTooltipProps>();
+const text = computed(() => props.labels ?? defaultLabels);
 
 const tooltipRef = ref<HTMLDivElement | null>(null);
 const coords = ref<{
@@ -95,11 +97,13 @@ watch(
 		}"
 	>
 		<slot :payload="payload">
-			<div>Tooth: {{ payload.notations.fdi }}</div>
-			<div>Type: {{ payload.type }}</div>
+			<div>{{ text.tooth }}: {{ payload.notations.fdi }}</div>
 			<div>
-				Universal: {{ payload.notations.universal }}, Palmer:
-				{{ payload.notations.palmer }}
+				{{ text.type }}: {{ text.toothTypes?.[payload.type] ?? payload.type }}
+			</div>
+			<div>
+				{{ text.universal }}: {{ payload.notations.universal }},
+				{{ text.palmer }}: {{ payload.notations.palmer }}
 			</div>
 		</slot>
 		<div

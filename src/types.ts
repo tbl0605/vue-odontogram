@@ -5,6 +5,9 @@ export type Notation = "FDI" | "Universal" | "Palmer";
 /** Palmer notation: text ("6UR") or grid corner symbol ("6⌋"). */
 export type PalmerStyle = "text" | "symbol";
 
+/** Tooth numbers inside the arch/rows or outside of them. */
+export type NumberPosition = "inside" | "outside";
+
 export type Theme = "light" | "dark";
 
 export type Placement =
@@ -29,6 +32,19 @@ export interface ToothDetail {
 		palmer: string;
 	};
 	type: string;
+}
+
+/** Texts displayed by the component. `toothTypes` translates `ToothDetail.type`. */
+export interface OdontogramLabels {
+	odontogram: string;
+	tooth: string;
+	type: string;
+	universal: string;
+	palmer: string;
+	/** Abbreviations of the Palmer text style, by FDI quadrant. */
+	palmerQuadrants: Record<"1" | "2" | "3" | "4", string>;
+	legend: string;
+	toothTypes?: Record<string, string>;
 }
 
 export interface OdontogramColors {
@@ -79,9 +95,11 @@ export interface OdontogramProps {
 	archHeight?: number;
 	chartWidth?: number;
 	showNumbers?: boolean;
+	numberPosition?: NumberPosition;
 	teethConditions?: ToothConditionGroup[];
 	readOnly?: boolean;
 	showLabels?: boolean;
+	labels?: Partial<OdontogramLabels>;
 	layout?: "circle" | "square";
 	style?: CSSProperties;
 }
@@ -107,4 +125,5 @@ export interface OdontogramTooltipProps {
 	active: boolean;
 	payload?: ToothDetail;
 	position?: TooltipPosition;
+	labels?: OdontogramLabels;
 }

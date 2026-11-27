@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch, type CSSProperties } from "vue";
-import { labelPositions, NewTeethPaths, teethPaths } from "../data";
+import {
+	LABEL_PADDING,
+	labelPositions,
+	NewTeethPaths,
+	outsideLabelPositions,
+	teethPaths,
+} from "../data";
 import { getArchHeight, getViewBox } from "../getViewBox";
+import { defaultLabels } from "../labels";
 import type {
 	OdontogramEmits,
 	OdontogramProps,
@@ -38,10 +45,13 @@ const props = withDefaults(defineProps<OdontogramProps>(), {
 	readOnly: false,
 	showLabels: false,
 	showNumbers: false,
+	numberPosition: "inside",
 	layout: "circle",
 });
 
 const emit = defineEmits<OdontogramEmits>();
+
+const text = computed(() => ({ ...defaultLabels, ...props.labels }));
 
 const teethpath = computed(() =>
 	props.layout === "circle" ? teethPaths : NewTeethPaths,
@@ -63,7 +73,9 @@ function quadrantTransform({ name, transform }: { name: string; transform: strin
 
 // Position of a tooth number, not mirrored with its quadrant.
 function numberTransform(toothName: string, quadrantName: string) {
-	const { x, y } = labelPositions[props.layout][toothName];
+	const positions =
+		props.numberPosition === "outside" ? outsideLabelPositions : labelPositions;
+	const { x, y } = positions[props.layout][toothName];
 	const sx = quadrantName === "second" || quadrantName === "fourth" ? -1 : 1;
 	const sy = quadrantName === "third" || quadrantName === "fourth" ? -1 : 1;
 	return `translate(${x} ${y}) scale(${sx} ${sy})`;
@@ -264,6 +276,15 @@ function teethPrefix(index: number) {
 	return `teeth-${[1, 2, 4, 3][index + offset]}`;
 }
 
+function toothLabel(id: string) {
+	return convertFDIToNotation(
+		id,
+		props.notation,
+		props.palmerStyle,
+		text.value.palmerQuadrants,
+	);
+}
+
 function toothId(prefix: string, toothName: string) {
 	return `${prefix}${toothName}`;
 }
@@ -299,7 +320,15 @@ const hiddenInputValue = computed(() =>
 	JSON.stringify(Array.from(selectedSet.value)),
 );
 
-const viewBox = computed(() => getViewBox(props.layout, props.showHalf, props));
+const viewBox = computed(() =>
+	getViewBox(props.layout, props.showHalf, {
+		...props,
+		padding:
+			props.showNumbers && props.numberPosition === "outside"
+				? LABEL_PADDING
+				: 0,
+	}),
+);
 </script>
 
 <template>
@@ -308,7 +337,7 @@ const viewBox = computed(() => getViewBox(props.layout, props.showHalf, props));
 		:style="containerStyle"
 		:role="readOnly ? 'group' : 'listbox'"
 		:aria-multiselectable="readOnly ? undefined : !singleSelect"
-		aria-label="Odontogram"
+		:aria-label="text.odontogram"
 		:data-read-only="readOnly ? 'true' : 'false'"
 		:tabindex="readOnly ? -1 : 0"
 	>
@@ -327,7 +356,7 @@ const viewBox = computed(() => getViewBox(props.layout, props.showHalf, props));
 				touchAction: 'manipulation',
 			}"
 		>
-			<title>Odontogram</title>
+			<title>{{ text.odontogram }}</title>
 
 			<g
 				v-for="(quadrant, index) in visibleQuadrants"
@@ -344,13 +373,14 @@ const viewBox = computed(() => getViewBox(props.layout, props.showHalf, props));
 						conditionMap.get(toothId(teethPrefix(index), tooth.name))
 					"
 					:read-only="readOnly"
+					:label="`${text.tooth} ${toothId(teethPrefix(index), tooth.name).replace('teeth-', '')}`"
 					@click="handleToggle"
 					@keydown="handleKeyDown"
 					@hover="handleHover"
 					@leave="handleLeave"
 				>
 					<title>
-						{{ convertFDIToNotation(toothId(teethPrefix(index), tooth.name), notation, palmerStyle) }}
+						{{ toothLabel(toothId(teethPrefix(index), tooth.name)) }}
 					</title>
 				</Tooth>
 				<template v-if="showNumbers">
@@ -365,7 +395,7 @@ const viewBox = computed(() => getViewBox(props.layout, props.showHalf, props));
 						pointer-events="none"
 						aria-hidden="true"
 					>
-						{{ convertFDIToNotation(toothId(teethPrefix(index), tooth.name), notation, palmerStyle) }}
+						{{ toothLabel(toothId(teethPrefix(index), tooth.name)) }}
 					</text>
 				</template>
 			</g>
@@ -376,6 +406,7 @@ const viewBox = computed(() => getViewBox(props.layout, props.showHalf, props));
 			:active="tooltipData.active"
 			:position="tooltipData.position"
 			:payload="tooltipData.payload"
+			:labels="text"
 		>
 			<template v-if="$slots.tooltip" #default="slotProps">
 				<slot name="tooltip" v-bind="slotProps" />
@@ -385,6 +416,7 @@ const viewBox = computed(() => getViewBox(props.layout, props.showHalf, props));
 		<ConditionLabels
 			v-if="showLabels"
 			:conditions="teethConditions"
+			:aria-label="text.legend"
 		/>
 	</div>
 </template>

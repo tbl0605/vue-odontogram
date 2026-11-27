@@ -47,7 +47,7 @@ function handleLeave() {
 		:role="readOnly ? undefined : 'option'"
 		:aria-selected="readOnly ? undefined : selected"
 		:tabindex="readOnly ? -1 : 0"
-		:aria-label="readOnly ? undefined : `Tooth ${name.replace('teeth-', '')}`"
+		:aria-label="readOnly ? undefined : (label ?? `Tooth ${name.replace('teeth-', '')}`)"
 		:aria-disabled="readOnly"
 		:style="{
 			cursor: readOnly ? 'default' : 'pointer',

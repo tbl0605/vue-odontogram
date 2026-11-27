@@ -183,11 +183,15 @@ export const NewTeethPaths = [
  * Position of the tooth numbers, in the coordinates of the first quadrant.
  * - circle: inside the arch, at the same distance from the outline of each tooth.
  * - square: between the upper and the lower row.
+ * `outsideLabelPositions` are the same numbers on the other side of the teeth
+ * (they need `LABEL_PADDING` around the view box).
  */
-export const labelPositions: Record<
+type LabelPositions = Record<
 	"circle" | "square",
 	Record<string, { x: number; y: number }>
-> = {
+>;
+
+export const labelPositions: LabelPositions = {
 	circle: {
 		"1": { x: 181, y: 73 },
 		"2": { x: 147, y: 77 },
@@ -209,3 +213,29 @@ export const labelPositions: Record<
 		"8": { x: 23.8, y: 66 },
 	},
 };
+
+export const outsideLabelPositions: LabelPositions = {
+	circle: {
+		"1": { x: 173, y: -14 },
+		"2": { x: 128, y: -5 },
+		"3": { x: 77, y: 19 },
+		"4": { x: 45, y: 55 },
+		"5": { x: 27, y: 93 },
+		"6": { x: 4, y: 134 },
+		"7": { x: -8, y: 208 },
+		"8": { x: -14, y: 277 },
+	},
+	square: {
+		"1": { x: 402.5, y: -12 },
+		"2": { x: 347, y: -12 },
+		"3": { x: 293.4, y: -12 },
+		"4": { x: 244.4, y: -12 },
+		"5": { x: 197.2, y: -12 },
+		"6": { x: 144.3, y: -12 },
+		"7": { x: 83.8, y: -12 },
+		"8": { x: 23.8, y: -12 },
+	},
+};
+
+/** Room added around the view box when the numbers are outside. */
+export const LABEL_PADDING = 30;

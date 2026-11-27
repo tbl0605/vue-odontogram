@@ -1,3 +1,4 @@
+import { defaultLabels } from "./labels";
 import type {
 	Notation,
 	OdontogramColors,
@@ -24,7 +25,8 @@ export function mapToCssVars(colors: OdontogramColors) {
 export function getToothNotations(fdi: string) {
 	const num = fdi.replace("teeth-", "");
 	const universal = convertFDIToNotation(fdi, "Universal");
-	const palmer = convertFDIToNotation(fdi, "Palmer");
+	// Language independent, unlike the Palmer text.
+	const palmer = convertFDIToNotation(fdi, "Palmer", "symbol");
 
 	return {
 		fdi: num,
@@ -111,6 +113,7 @@ export function convertFDIToNotation(
 	fdi: string,
 	notation: Notation,
 	palmerStyle: PalmerStyle = "text",
+	palmerQuadrants: Record<string, string> = defaultLabels.palmerQuadrants,
 ) {
 	const num = fdi.replace("teeth-", "");
 
@@ -176,14 +179,7 @@ export function convertFDIToNotation(
 				: `${corner}${tooth}`;
 		}
 
-		const symbols: Record<string, string> = {
-			"1": "UR",
-			"2": "UL",
-			"3": "LL",
-			"4": "LR",
-		};
-
-		return `${tooth}${symbols[quadrant] ?? ""}`;
+		return `${tooth}${palmerQuadrants[quadrant] ?? ""}`;
 	}
 
 	return num;

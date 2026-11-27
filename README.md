@@ -59,7 +59,7 @@ app.use(VueOdontogram);
 | `class` | `string` | `''` | Wrapper CSS class |
 | `theme` | `'light' \| 'dark'` | `'light'` | Built-in color theme |
 | `colors` | `OdontogramColors` | `{}` | Override CSS variables |
-| `notation` | `'FDI' \| 'Universal' \| 'Palmer'` | `'FDI'` | Tooth label notation in SVG `<title>` |
+| `notation` | `'FDI' \| 'Universal' \| 'Palmer'` | `'FDI'` | Notation of the tooth numbers (`showNumbers`) and of the SVG `<title>` |
 | `palmerStyle` | `'text' \| 'symbol'` | `'text'` | Palmer display: `6UR` (text) or `6⌋` (grid corner symbol) |
 | `tooltipPlacement` | `Placement` | `'top'` | Tooltip anchor placement |
 | `tooltipMargin` | `number` | `10` | Tooltip offset from tooth |
@@ -69,9 +69,11 @@ app.use(VueOdontogram);
 | `archHeight` | `number` | auto (from `maxTeeth`) | Height of one arch in SVG units (`347` for 8 teeth, `75` for `square`) |
 | `chartWidth` | `number` | `409` (`900` for `square`) | Width in SVG units, cropped around the center |
 | `showNumbers` | `boolean` | `false` | Show the tooth numbers (follows `notation`) |
+| `numberPosition` | `'inside' \| 'outside'` | `'inside'` | Tooth numbers inside the arch/rows, or outside of them (the view box then gets extra room around the chart) |
 | `teethConditions` | `ToothConditionGroup[]` | — | Pre-color teeth by condition |
 | `readOnly` | `boolean` | `false` | Disable interaction |
 | `showLabels` | `boolean` | `false` | Show condition legend |
+| `labels` | `Partial<OdontogramLabels>` | English texts (`defaultLabels`) | Texts of the tooltip and of the accessibility labels. `frLabels` is a ready-made French set; `toothTypes` translates the tooth type shown in the tooltip (`ToothDetail.type` stays in English). `palmerQuadrants` translates the Palmer text abbreviations (`UR`, `UL`, `LL`, `LR`; `SD`, `SG`, `IG`, `ID` in `frLabels`) |
 | `layout` | `'circle' \| 'square'` | `'circle'` | Arch or linear layout |
 | `style` | `CSSProperties` | — | Inline styles on wrapper |
 
@@ -80,7 +82,7 @@ app.use(VueOdontogram);
 | Event | Payload | Description |
 |-------|---------|-------------|
 | `update:selected` | `string[]` | Emitted for `v-model:selected` |
-| `change` | `ToothDetail[]` | Rich tooth details on every selection change |
+| `change` | `ToothDetail[]` | Rich tooth details on every selection change (`notations.palmer` uses the grid corner symbols, e.g. `6⌋`) |
 
 ## Slots
 
@@ -99,7 +101,7 @@ app.use(VueOdontogram);
 ## Exports
 
 ```ts
-import Odontogram, { Odontogram, getViewBox, VueOdontogram } from "vue-odontogram";
+import Odontogram, { Odontogram, frLabels, getViewBox, VueOdontogram } from "vue-odontogram";
 import type { ToothDetail, Notation, Theme } from "vue-odontogram";
 ```
 

@@ -8,6 +8,8 @@ export interface ViewBoxOptions {
 	archHeight?: number;
 	/** Width of the chart, cropped around its center. */
 	chartWidth?: number;
+	/** Extra room around the chart (outer sides only). */
+	padding?: number;
 }
 
 // Height of one arch of the "circle" layout for 1 to 8 teeth per quadrant.
@@ -24,17 +26,17 @@ export function getViewBox(
 		maxTeeth,
 		archHeight = getArchHeight(layout, maxTeeth),
 		chartWidth,
+		padding = 0,
 	}: ViewBoxOptions = {},
 ): string {
 	const fullWidth = layout === "square" ? 900 : 409;
 	const width = chartWidth ?? fullWidth;
 	const x = (fullWidth - width) / 2;
 
-	if (showHalf === "upper") {
-		return `${x} 0 ${width} ${archHeight}`;
-	}
-	if (showHalf === "lower") {
-		return `${x} ${archHeight} ${width} ${archHeight}`;
-	}
-	return `${x} 0 ${width} ${archHeight * 2}`;
+	// The padding is added on the outer sides only (not between the two arches).
+	const top = showHalf === "lower" ? 0 : padding;
+	const bottom = showHalf === "upper" ? 0 : padding;
+	const y = showHalf === "lower" ? archHeight : 0;
+	const height = showHalf === "full" ? archHeight * 2 : archHeight;
+	return `${x - padding} ${y - top} ${width + 2 * padding} ${height + top + bottom}`;
 }

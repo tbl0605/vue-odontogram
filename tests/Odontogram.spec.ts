@@ -2,6 +2,7 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import Odontogram from "../src/components/Odontogram.vue";
 import { getViewBox } from "../src/getViewBox";
+import { frLabels } from "../src/labels";
 import {
 	convertFDIToNotation,
 	getToothNotations,
@@ -32,6 +33,32 @@ describe("Odontogram", () => {
 		expect(hidden.findAll("text")).toHaveLength(0);
 	});
 
+	it("places the tooth numbers inside by default or outside the teeth", () => {
+		const transform = (numberPosition?: "inside" | "outside") =>
+			mount(Odontogram, { props: { showNumbers: true, numberPosition } })
+				.get("text")
+				.attributes("transform");
+
+		expect(transform()).toContain("translate(181 73)");
+		expect(transform("outside")).toContain("translate(173 -14)");
+
+		// Room is only added around the view box when the numbers are outside.
+		const viewBox = (props: object) =>
+			mount(Odontogram, { props }).get("svg").attributes("viewBox");
+
+		expect(viewBox({ showNumbers: true })).toBe("0 0 409 694");
+		expect(viewBox({ numberPosition: "outside" })).toBe("0 0 409 694");
+		expect(viewBox({ showNumbers: true, numberPosition: "outside" })).toBe(
+			"-30 -30 469 754",
+		);
+		expect(
+			viewBox({ showNumbers: true, numberPosition: "outside", showHalf: "upper" }),
+		).toBe("-30 -30 469 377");
+		expect(
+			viewBox({ showNumbers: true, numberPosition: "outside", showHalf: "lower" }),
+		).toBe("-30 347 469 377");
+	});
+
 	it("displays Palmer as text or as grid corner symbols", () => {
 		const texts = (palmerStyle?: "text" | "symbol") =>
 			mount(Odontogram, {
@@ -46,6 +73,27 @@ describe("Odontogram", () => {
 		expect(texts("symbol")[8]).toBe("⌊1");
 		expect(convertFDIToNotation("teeth-31", "Palmer", "symbol")).toBe("⌈1");
 		expect(convertFDIToNotation("teeth-41", "Palmer", "symbol")).toBe("1⌉");
+	});
+
+	it("translates the Palmer text but not the emitted Palmer notation", () => {
+		const wrapper = mount(Odontogram, {
+			props: { showNumbers: true, notation: "Palmer", labels: frLabels },
+		});
+		const numbers = wrapper.findAll("text").map((text) => text.text());
+
+		expect(numbers[0]).toBe("1SD");
+		expect(numbers[8]).toBe("1SG");
+		expect(convertFDIToNotation("teeth-31", "Palmer")).toBe("1LL");
+		expect(
+			convertFDIToNotation(
+				"teeth-31",
+				"Palmer",
+				"text",
+				frLabels.palmerQuadrants,
+			),
+		).toBe("1IG");
+		// The notations of the tooth details are always the corner symbols.
+		expect(getToothNotations("teeth-31").palmer).toBe("⌈1");
 	});
 
 	it("numbers the teeth of the lower half correctly", () => {
@@ -69,6 +117,40 @@ describe("Odontogram", () => {
 		// Quadrant 4 is on the left (not mirrored horizontally), like quadrant 1.
 		expect(transform("teeth-41")).toContain("scale(1, -1)");
 		expect(transform("teeth-31")).toContain("scale(-1, -1)");
+	});
+
+	it("displays the texts in English by default and accepts custom labels", async () => {
+		const english = mount(Odontogram);
+		expect(english.get("[role=listbox]").attributes("aria-label")).toBe(
+			"Odontogram",
+		);
+		expect(english.get('[class~="teeth-11"]').attributes("aria-label")).toBe(
+			"Tooth 11",
+		);
+
+		const french = mount(Odontogram, {
+			props: {
+				labels: frLabels,
+				teethConditions: [
+					{ label: "Carie", teeth: [], outlineColor: "#000", fillColor: "#f00" },
+				],
+				showLabels: true,
+			},
+		});
+		expect(french.get("[role=listbox]").attributes("aria-label")).toBe(
+			"Odontogramme",
+		);
+		expect(french.get('[class~="teeth-11"]').attributes("aria-label")).toBe(
+			"Dent 11",
+		);
+		expect(french.get("ul").attributes("aria-label")).toBe(
+			frLabels.legend,
+		);
+
+		await french.get('[class~="teeth-11"]').trigger("mouseenter");
+		const tooltip = french.get('[role="tooltip"]').text();
+		expect(tooltip).toContain("Dent: 11");
+		expect(tooltip).toContain("Type: Incisive centrale");
 	});
 
 	it("shrinks the view box for a partial dentition", () => {
@@ -127,7 +209,7 @@ describe("Odontogram", () => {
 				notations: {
 					fdi: "11",
 					universal: "8",
-					palmer: "1UR",
+					palmer: "1⌋",
 				},
 				type: "Central Incisor",
 			},
@@ -279,7 +361,7 @@ describe("notation helpers", () => {
 		expect(getToothNotations("teeth-48")).toEqual({
 			fdi: "48",
 			universal: "32",
-			palmer: "8LR",
+			palmer: "8⌉",
 		});
 	});
 
