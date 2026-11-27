@@ -35,11 +35,11 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"import": "./dist/vue-odontogram.es.js",
-			"require": "./dist/vue-odontogram.cjs.js"
+			"require": "./dist/vue-odontogram.cjs"
 		},
 		"./style.css": "./dist/style.css"
 	},
-	"main": "./dist/vue-odontogram.cjs.js",
+	"main": "./dist/vue-odontogram.cjs",
 	"module": "./dist/vue-odontogram.es.js",
 	"types": "./dist/index.d.ts",
 	"scripts": {

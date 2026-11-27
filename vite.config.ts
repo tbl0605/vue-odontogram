@@ -16,8 +16,9 @@ export default defineConfig({
 			entry: resolve(__dirname, "src/index.ts"),
 			name: "VueOdontogram",
 			formats: ["es", "cjs"],
+			// `.cjs` because the package is "type": "module".
 			fileName: (format) =>
-				`vue-odontogram.${format === "es" ? "es" : "cjs"}.js`,
+				format === "es" ? "vue-odontogram.es.js" : "vue-odontogram.cjs",
 		},
 		rollupOptions: {
 			external: ["vue"],
