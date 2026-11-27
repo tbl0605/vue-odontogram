@@ -37,7 +37,7 @@ const props = withDefaults(defineProps<OdontogramProps>(), {
 	maxTeeth: 8,
 	readOnly: false,
 	showLabels: false,
-	showNumbers: true,
+	showNumbers: false,
 	layout: "circle",
 });
 

@@ -20,18 +20,23 @@ describe("Odontogram", () => {
 	});
 
 	it("renders the tooth numbers in the selected notation", () => {
-		const wrapper = mount(Odontogram, { props: { notation: "Universal" } });
+		const wrapper = mount(Odontogram, {
+			props: { showNumbers: true, notation: "Universal" },
+		});
 
 		expect(wrapper.findAll("text")).toHaveLength(32);
 		expect(wrapper.findAll("text")[0].text()).toBe("8");
 
-		const hidden = mount(Odontogram, { props: { showNumbers: false } });
+		// Hidden by default.
+		const hidden = mount(Odontogram);
 		expect(hidden.findAll("text")).toHaveLength(0);
 	});
 
 	it("displays Palmer as text or as grid corner symbols", () => {
 		const texts = (palmerStyle?: "text" | "symbol") =>
-			mount(Odontogram, { props: { notation: "Palmer", palmerStyle } })
+			mount(Odontogram, {
+				props: { showNumbers: true, notation: "Palmer", palmerStyle },
+			})
 				.findAll("text")
 				.map((text) => text.text());
 
@@ -44,7 +49,9 @@ describe("Odontogram", () => {
 	});
 
 	it("numbers the teeth of the lower half correctly", () => {
-		const wrapper = mount(Odontogram, { props: { showHalf: "lower" } });
+		const wrapper = mount(Odontogram, {
+			props: { showNumbers: true, showHalf: "lower" },
+		});
 		const numbers = wrapper.findAll("text").map((text) => text.text());
 
 		expect(numbers[0]).toBe("41");

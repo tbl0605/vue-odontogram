@@ -68,7 +68,7 @@ app.use(VueOdontogram);
 | `maxTeeth` | `number` | `8` | Teeth per quadrant |
 | `archHeight` | `number` | auto (from `maxTeeth`) | Height of one arch in SVG units (`347` for 8 teeth, `75` for `square`) |
 | `chartWidth` | `number` | `409` (`900` for `square`) | Width in SVG units, cropped around the center |
-| `showNumbers` | `boolean` | `true` | Show the tooth numbers (follows `notation`) |
+| `showNumbers` | `boolean` | `false` | Show the tooth numbers (follows `notation`) |
 | `teethConditions` | `ToothConditionGroup[]` | — | Pre-color teeth by condition |
 | `readOnly` | `boolean` | `false` | Disable interaction |
 | `showLabels` | `boolean` | `false` | Show condition legend |
